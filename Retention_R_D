@@ -1,0 +1,42 @@
+- Retention Analysis by days
+WITH user_orders AS (
+  SELECT
+    CustomerID,
+    "Country",
+    MIN("InvoiceDate") AS day_0,
+    SUM(CASE WHEN "InvoiceDate" = '2010-01-12' THEN 1 ELSE 0 END) AS returned_day_1,
+    SUM(CASE WHEN "InvoiceDate" = '2010-02-12' THEN 1 ELSE 0 END) AS returned_day_2,
+    SUM(CASE WHEN "InvoiceDate" = '2010-03-12' THEN 1 ELSE 0 END) AS returned_day_3,
+    SUM(CASE WHEN "InvoiceDate" = '2010-04-12' THEN 1 ELSE 0 END) AS returned_day_4,
+    SUM(CASE WHEN "InvoiceDate" = '2010-05-12' THEN 1 ELSE 0 END) AS returned_day_5,
+    SUM(CASE WHEN "InvoiceDate" = '2010-06-12' THEN 1 ELSE 0 END) AS returned_day_6,
+    SUM(CASE WHEN "InvoiceDate" = '2010-07-12' THEN 1 ELSE 0 END) AS returned_day_7,
+    SUM(CASE WHEN "InvoiceDate" = '2010-08-12' THEN 1 ELSE 0 END) AS returned_day_8
+  FROM invoice
+  GROUP BY "Country", CustomerID
+)
+- Retention Analysis by countries
+SELECT
+  "Country",
+  COUNT(DISTINCT "CustomerID") as distinct_customers,
+  COUNT(DISTINCT CASE WHEN returned_day_1 > 0 THEN CustomerID ELSE NULL END) as cohort_day_1,
+  COUNT(DISTINCT CASE WHEN returned_day_2 > 0 THEN CustomerID ELSE NULL END) as cohort_day_2,
+  COUNT(DISTINCT CASE WHEN returned_day_3 > 0 THEN CustomerID ELSE NULL END) as cohort_day_3,
+  COUNT(DISTINCT CASE WHEN returned_day_4 > 0 THEN CustomerID ELSE NULL END) as cohort_day_4,
+  COUNT(DISTINCT CASE WHEN returned_day_5 > 0 THEN CustomerID ELSE NULL END) as cohort_day_5,
+  COUNT(DISTINCT CASE WHEN returned_day_6 > 0 THEN CustomerID ELSE NULL END) as cohort_day_6,
+  COUNT(DISTINCT CASE WHEN returned_day_7 > 0 THEN CustomerID ELSE NULL END) as cohort_day_7,
+  COUNT(DISTINCT CASE WHEN returned_day_8 > 0 THEN CustomerID ELSE NULL END) as cohort_day_8
+FROM user_orders
+GROUP BY "Country"
+ORDER BY "Country";
+
+-- Total and average price by countries
+SELECT
+  "Country",
+  COUNT(DISTINCT "InvoiceNo") AS unique_orders,
+  SUM("Quantity" * "UnitPrice") AS total_purchase_amount,
+  total_purchase_amount / unique_orders AS average_purchase_check
+FROM invoice
+GROUP BY "Country"
+ORDER BY 4 DESC;
