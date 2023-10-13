@@ -1,0 +1,31 @@
+-- General funnel by event type
+SELECT
+    event_type,
+    COUNT(DISTINCT user_id) AS user_count
+FROM Funnel
+GROUP BY event_type;
+
+-- Funnel by event type and day
+SELECT
+    event_type,
+    event_day,
+    COUNT(DISTINCT user_id) AS user_count
+FROM Funnel
+GROUP BY event_day, event_type 
+ORDER BY event_day, event_type;
+
+-- Funnel by event type and time slots on a specific day (2020-09-25)
+SELECT
+    event_type,
+    CASE
+        WHEN CAST(SUBSTRING(CAST(event_time AS VARCHAR), 12, 5) AS TIME) BETWEEN TIME '00:01' AND TIME '04:59' THEN 'Early morning 00:01-04:59'
+        WHEN CAST(SUBSTRING(CAST(event_time AS VARCHAR), 12, 5) AS TIME) BETWEEN TIME '05:00' AND TIME '11:59' THEN 'Morning 5:00-11:59'
+        WHEN CAST(SUBSTRING(CAST(event_time AS VARCHAR), 12, 5) AS TIME) BETWEEN TIME '12:00' AND TIME '16:59' THEN 'Afternoon 12:00-16:59'
+        WHEN CAST(SUBSTRING(CAST(event_time AS VARCHAR), 12, 5) AS TIME) BETWEEN TIME '17:00' AND TIME '19:59' THEN 'Evening 17:00-19:59'
+        WHEN CAST(SUBSTRING(CAST(event_time AS VARCHAR), 12, 5) AS TIME) BETWEEN TIME '20:00' AND TIME '23:59' THEN 'Night 20:00-23:59'
+    END AS timeslot,
+    COUNT(DISTINCT user_id) AS user_count
+FROM Funnel
+WHERE event_day = '2020-09-25'
+GROUP BY event_type, timeslot
+ORDER BY event_type, timeslot;
